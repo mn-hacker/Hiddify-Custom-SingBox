@@ -6,6 +6,7 @@ import (
 	"encoding/binary"
 	"time"
 
+	"github.com/sagernet/sing-box/hiddify/ipinfo"
 	"github.com/sagernet/sing/common/observable"
 	"github.com/sagernet/sing/common/varbin"
 )
@@ -20,15 +21,17 @@ type ClashServer interface {
 }
 
 type URLTestHistory struct {
-	Time  time.Time `json:"time"`
-	Delay uint16    `json:"delay"`
+	Time   time.Time      `json:"time"`
+	Delay  uint16         `json:"delay"`
+	IpInfo *ipinfo.IpInfo `json:"ipinfo"`
 }
 
 type URLTestHistoryStorage interface {
 	SetHook(hook *observable.Subscriber[struct{}])
 	LoadURLTestHistory(tag string) *URLTestHistory
 	DeleteURLTestHistory(tag string)
-	StoreURLTestHistory(tag string, history *URLTestHistory)
+	StoreURLTestHistory(tag string, history *URLTestHistory) *URLTestHistory
+	AddOnlyIpToHistory(tag string, history *URLTestHistory)
 	Close() error
 }
 

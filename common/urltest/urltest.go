@@ -23,16 +23,22 @@ type HistoryStorage struct {
 	access       sync.RWMutex
 	delayHistory map[string]*adapter.URLTestHistory
 	updateHook   *observable.Subscriber[struct{}]
+	updateHookv2 *observable.Observer[int]
 }
 
 func NewHistoryStorage() *HistoryStorage {
 	return &HistoryStorage{
 		delayHistory: make(map[string]*adapter.URLTestHistory),
+		updateHookv2: observable.NewObserver(observable.NewSubscriber[int](10), 1),
 	}
 }
 
 func (s *HistoryStorage) SetHook(hook *observable.Subscriber[struct{}]) {
 	s.updateHook = hook
+}
+
+func (s *HistoryStorage) Observer() *observable.Observer[int] {
+	return s.updateHookv2
 }
 
 func (s *HistoryStorage) LoadURLTestHistory(tag string) *adapter.URLTestHistory {
@@ -46,14 +52,40 @@ func (s *HistoryStorage) LoadURLTestHistory(tag string) *adapter.URLTestHistory 
 
 func (s *HistoryStorage) DeleteURLTestHistory(tag string) {
 	s.access.Lock()
-	delete(s.delayHistory, tag)
+	s.StoreURLTestHistory(tag, &adapter.URLTestHistory{
+		Delay: 65000,
+		Time:  time.Now(),
+	})
+	// delete(s.delayHistory, tag)
 	s.notifyUpdated()
 	s.access.Unlock()
 }
 
-func (s *HistoryStorage) StoreURLTestHistory(tag string, history *adapter.URLTestHistory) {
+func (s *HistoryStorage) StoreURLTestHistory(tag string, history *adapter.URLTestHistory) *adapter.URLTestHistory {
 	s.access.Lock()
-	s.delayHistory[tag] = history
+	if old, ok := s.delayHistory[tag]; ok && history != nil {
+		old.Delay = history.Delay
+		old.Time = history.Time
+		if history.IpInfo != nil {
+			old.IpInfo = history.IpInfo
+		}
+	} else {
+		s.delayHistory[tag] = history
+	}
+	history = s.delayHistory[tag]
+	s.access.Unlock()
+	s.notifyUpdated()
+	return history
+}
+
+func (s *HistoryStorage) AddOnlyIpToHistory(tag string, history *adapter.URLTestHistory) {
+	s.access.Lock()
+	if old, ok := s.delayHistory[tag]; ok && history != nil {
+		old.IpInfo = history.IpInfo
+	} else {
+		s.delayHistory[tag] = history
+	}
+	s.access.Unlock()
 	s.notifyUpdated()
 	s.access.Unlock()
 }
@@ -63,12 +95,14 @@ func (s *HistoryStorage) notifyUpdated() {
 	if updateHook != nil {
 		updateHook.Emit(struct{}{})
 	}
+	s.updateHookv2.Emit(1)
 }
 
 func (s *HistoryStorage) Close() error {
 	s.access.Lock()
 	defer s.access.Unlock()
 	s.updateHook = nil
+	s.updateHookv2.Close()
 	return nil
 }
 
