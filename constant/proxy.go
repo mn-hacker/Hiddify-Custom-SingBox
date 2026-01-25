@@ -30,6 +30,9 @@ const (
 	TypeSSMAPI       = "ssm-api"
 	TypeCCM          = "ccm"
 	TypeOCM          = "ocm"
+
+	TypeHInvalidConfig = "hinvalid" //H
+
 )
 
 const (
@@ -89,6 +92,8 @@ func ProxyDisplayName(proxyType string) string {
 		return "Selector"
 	case TypeURLTest:
 		return "URLTest"
+	case TypeHInvalidConfig:
+		return "Invalid"
 	default:
 		return "Unknown"
 	}
