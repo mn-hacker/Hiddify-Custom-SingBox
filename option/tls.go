@@ -31,6 +31,8 @@ type InboundTLSOptions struct {
 	ACME                             *InboundACMEOptions                 `json:"acme,omitempty"`
 	ECH                              *InboundECHOptions                  `json:"ech,omitempty"`
 	Reality                          *InboundRealityOptions              `json:"reality,omitempty"`
+
+	TLSTricks *TLSTricksOptions `json:"tls_tricks,omitempty"` //H
 }
 
 type ClientAuthType tls.ClientAuthType
