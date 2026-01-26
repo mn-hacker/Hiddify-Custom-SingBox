@@ -32,7 +32,8 @@ const (
 	TypeOCM          = "ocm"
 
 	TypeHInvalidConfig = "hinvalid" //H
-
+	TypeXray           = "xray"     //H
+	TypeCustom         = "custom"   //H
 )
 
 const (
@@ -94,6 +95,10 @@ func ProxyDisplayName(proxyType string) string {
 		return "URLTest"
 	case TypeHInvalidConfig:
 		return "Invalid"
+	case TypeXray:
+		return "xray"
+	case TypeCustom:
+		return "custom"
 	default:
 		return "Unknown"
 	}
