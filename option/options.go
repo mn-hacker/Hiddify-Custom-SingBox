@@ -39,6 +39,14 @@ func (o *Options) UnmarshalJSONContext(ctx context.Context, content []byte) erro
 	return checkOptions(o)
 }
 
+func (o *Options) MarshalJSONContext(ctx context.Context) (string, error) {
+	var buffer bytes.Buffer
+	encoder := json.NewEncoderContext(ctx, &buffer)
+	encoder.SetIndent("", "  ")
+	err := encoder.Encode((*_Options)(o))
+	return buffer.String(), err
+}
+
 type LogOptions struct {
 	Disabled     bool   `json:"disabled,omitempty"`
 	Level        string `json:"level,omitempty"`
