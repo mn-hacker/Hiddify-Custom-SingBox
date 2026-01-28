@@ -39,12 +39,12 @@ func (o *Options) UnmarshalJSONContext(ctx context.Context, content []byte) erro
 	return checkOptions(o)
 }
 
-func (o *Options) MarshalJSONContext(ctx context.Context) (string, error) {
+func (o *Options) MarshalJSONContext(ctx context.Context) ([]byte, error) {
 	var buffer bytes.Buffer
 	encoder := json.NewEncoderContext(ctx, &buffer)
 	encoder.SetIndent("", "  ")
 	err := encoder.Encode((*_Options)(o))
-	return buffer.String(), err
+	return buffer.Bytes(), err
 }
 
 type LogOptions struct {

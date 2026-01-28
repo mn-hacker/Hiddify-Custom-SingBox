@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 
-	"github.com/sagernet/sing-box"
+	box "github.com/sagernet/sing-box"
 	"github.com/sagernet/sing-box/adapter"
 	"github.com/sagernet/sing-box/common/urltest"
 	"github.com/sagernet/sing-box/experimental/deprecated"
@@ -67,12 +67,17 @@ type OverrideOptions struct {
 func (s *StartedService) newInstance(profileContent string, overrideOptions *OverrideOptions) (*Instance, error) {
 	ctx := s.ctx
 	service.MustRegister[deprecated.Manager](ctx, new(deprecatedManager))
-	ctx, cancel := context.WithCancel(include.Context(ctx))
+	// ctx, cancel := context.WithCancel(include.Context(ctx))
 	options, err := parseConfig(ctx, profileContent)
 	if err != nil {
-		cancel()
+		// cancel()
 		return nil, err
 	}
+	return s.newInstanceOptions(options, overrideOptions)
+}
+func (s *StartedService) newInstanceOptions(options option.Options, overrideOptions *OverrideOptions) (*Instance, error) {
+	ctx := s.ctx
+	ctx, cancel := context.WithCancel(include.Context(ctx))
 	if overrideOptions != nil {
 		for _, inbound := range options.Inbounds {
 			if tunInboundOptions, isTUN := inbound.Options.(*option.TunInboundOptions); isTUN {
@@ -130,4 +135,13 @@ func parseConfig(ctx context.Context, configContent string) (option.Options, err
 		return option.Options{}, E.Cause(err, "decode config")
 	}
 	return options, nil
+}
+
+func (i *Instance) UrlTestHistory() *urltest.HistoryStorage {
+	return i.urlTestHistoryStorage
+}
+
+func (i *Instance) Context() context.Context {
+	return i.ctx
+
 }

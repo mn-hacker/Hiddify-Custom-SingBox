@@ -14,6 +14,7 @@ import (
 	"github.com/sagernet/sing-box/experimental/clashapi/trafficontrol"
 	"github.com/sagernet/sing-box/experimental/deprecated"
 	"github.com/sagernet/sing-box/log"
+	"github.com/sagernet/sing-box/option"
 	"github.com/sagernet/sing-box/protocol/group"
 	"github.com/sagernet/sing/common"
 	"github.com/sagernet/sing/common/batch"
@@ -59,6 +60,8 @@ type StartedService struct {
 
 	connectionEventSubscriber *observable.Subscriber[trafficontrol.ConnectionEvent]
 	connectionEventObserver   *observable.Observer[trafficontrol.ConnectionEvent]
+
+	extraServices []adapter.LifecycleService //H
 }
 
 type ServiceOptions struct {
@@ -72,6 +75,7 @@ type ServiceOptions struct {
 	// UserID             int
 	// GroupID            int
 	// SystemProxyEnabled bool
+	ExtraServices []adapter.LifecycleService //H
 }
 
 func NewStartedService(options ServiceOptions) *StartedService {
@@ -93,6 +97,7 @@ func NewStartedService(options ServiceOptions) *StartedService {
 		urlTestHistoryStorage:     urltest.NewHistoryStorage(),
 		clashModeSubscriber:       observable.NewSubscriber[struct{}](1),
 		connectionEventSubscriber: observable.NewSubscriber[trafficontrol.ConnectionEvent](256),
+		extraServices:             options.ExtraServices,
 	}
 	s.serviceStatusObserver = observable.NewObserver(s.serviceStatusSubscriber, 2)
 	s.logObserver = observable.NewObserver(s.logSubscriber, 64)
@@ -162,8 +167,13 @@ func (s *StartedService) waitForStarted(ctx context.Context) error {
 		}
 	}
 }
-
 func (s *StartedService) StartOrReloadService(profileContent string, options *OverrideOptions) error {
+	return s.startOrReloadServiceImp(nil, profileContent, options)
+}
+func (s *StartedService) StartOrReloadServiceOptions(profileOptions option.Options) error {
+	return s.startOrReloadServiceImp(&profileOptions, "", nil)
+}
+func (s *StartedService) startOrReloadServiceImp(profileOptions *option.Options, profileContent string, options *OverrideOptions) error {
 	s.serviceAccess.Lock()
 	switch s.serviceStatus.Status {
 	case ServiceStatus_IDLE, ServiceStatus_STARTED, ServiceStatus_STARTING:
@@ -180,9 +190,19 @@ func (s *StartedService) StartOrReloadService(profileContent string, options *Ov
 	}
 	s.updateStatus(ServiceStatus_STARTING)
 	s.resetLogs()
-	instance, err := s.newInstance(profileContent, options)
+	var err error
+	var instance *Instance
+	if profileContent == "" && profileOptions != nil {
+		instance, err = s.newInstanceOptions(*profileOptions, options)
+	} else {
+		instance, err = s.newInstance(profileContent, options)
+
+	}
 	if err != nil {
 		return s.updateStatusError(err)
+	}
+	for _, extraService := range s.extraServices {
+		s.instance.Box().AddService(extraService)
 	}
 	s.instance = instance
 	instance.urlTestHistoryStorage.SetHook(s.urlTestSubscriber)
@@ -397,6 +417,9 @@ func (s *StartedService) SubscribeStatus(request *SubscribeStatusRequest, server
 	}
 }
 
+func (s *StartedService) ReadStatus() *Status {
+	return s.readStatus()
+}
 func (s *StartedService) readStatus() *Status {
 	var status Status
 	status.Memory = memory.Inuse()

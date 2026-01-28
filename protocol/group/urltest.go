@@ -2,6 +2,7 @@ package group
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"slices"
 	"sync"
@@ -188,6 +189,24 @@ func (s *URLTest) NewDirectRouteConnection(metadata adapter.InboundContext, rout
 		return nil, E.New(metadata.Network, " is not supported by outbound: ", selected.Tag())
 	}
 	return selected.(adapter.DirectRouteOutbound).NewDirectRouteConnection(metadata, routeContext, timeout)
+}
+
+func (s *URLTest) ForceRecheckOutbound(outboundTag string) error {
+	if s.Tag() == outboundTag {
+		_, err := s.group.urlTest(s.ctx, true)
+		return err
+	}
+	return s.group.ForceRecheckOutbound(outboundTag)
+}
+func (g *URLTestGroup) ForceRecheckOutbound(outboundTag string) error {
+	for _, detour := range g.outbounds {
+		if detour.Tag() == outboundTag {
+			g.urltestImp(detour, nil)
+			// g.checkHistoryIp(detour)
+			return nil
+		}
+	}
+	return fmt.Errorf("Outbound not found")
 }
 
 // func (s *URLTest) InterfaceUpdated() {
