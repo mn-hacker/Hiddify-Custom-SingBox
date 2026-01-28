@@ -201,10 +201,10 @@ func (s *StartedService) startOrReloadServiceImp(profileOptions *option.Options,
 	if err != nil {
 		return s.updateStatusError(err)
 	}
+	s.instance = instance
 	for _, extraService := range s.extraServices {
 		s.instance.Box().AddService(extraService)
 	}
-	s.instance = instance
 	instance.urlTestHistoryStorage.SetHook(s.urlTestSubscriber)
 	if instance.clashServer != nil {
 		instance.clashServer.SetModeUpdateHook(s.clashModeSubscriber)
