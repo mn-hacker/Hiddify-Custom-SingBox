@@ -3,7 +3,7 @@ package include
 import (
 	"context"
 
-	"github.com/sagernet/sing-box"
+	box "github.com/sagernet/sing-box"
 	"github.com/sagernet/sing-box/adapter"
 	"github.com/sagernet/sing-box/adapter/endpoint"
 	"github.com/sagernet/sing-box/adapter/inbound"
@@ -22,6 +22,9 @@ import (
 	"github.com/sagernet/sing-box/protocol/direct"
 	protocolDNS "github.com/sagernet/sing-box/protocol/dns"
 	"github.com/sagernet/sing-box/protocol/group"
+	"github.com/sagernet/sing-box/protocol/hiddify/hinvalid"
+
+	"github.com/sagernet/sing-box/protocol/hiddify/xray"
 	"github.com/sagernet/sing-box/protocol/http"
 	"github.com/sagernet/sing-box/protocol/mixed"
 	"github.com/sagernet/sing-box/protocol/naive"
@@ -92,6 +95,8 @@ func OutboundRegistry() *outbound.Registry {
 	shadowtls.RegisterOutbound(registry)
 	vless.RegisterOutbound(registry)
 	anytls.RegisterOutbound(registry)
+	hinvalid.RegisterOutbound(registry)
+	xray.RegisterOutbound(registry)
 
 	registerQUICOutbounds(registry)
 	registerWireGuardOutbound(registry)
