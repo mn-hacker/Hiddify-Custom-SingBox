@@ -81,7 +81,7 @@ func Start(logger log.ContextLogger, stage StartStage, services ...Lifecycle) er
 		startTime := time.Now()
 		err := service.Start(stage)
 		if err != nil {
-			return err
+			return E.New(name, " ", err)
 		}
 		logger.Trace(stage, " ", name, " completed (", F.Seconds(time.Since(startTime).Seconds()), "s)")
 	}
