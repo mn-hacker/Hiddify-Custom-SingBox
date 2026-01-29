@@ -48,6 +48,7 @@ type RemoteRuleSet struct {
 	lastUpdated    time.Time
 	lastEtag       string
 	updateTicker   *time.Ticker
+	startupTicker  *time.Ticker //H
 	cacheFile      adapter.CacheFile
 	pauseManager   pause.Manager
 	callbacks      list.List[adapter.RuleSetUpdateCallback]
@@ -104,12 +105,14 @@ func (s *RemoteRuleSet) StartContext(ctx context.Context, startContext *adapter.
 			s.lastEtag = savedSet.LastEtag
 		}
 	}
-	if s.lastUpdated.IsZero() {
-		err := s.fetch(ctx, startContext)
-		if err != nil {
-			return E.Cause(err, "initial rule-set: ", s.options.Tag)
-		}
-	}
+	// if s.lastUpdated.IsZero() {
+	// 	err := s.fetch(ctx, startContext)
+	// 	if err != nil {
+	// 		// 	return E.Cause(err, "initial rule-set: ", s.options.Tag)
+	// 		s.logger.Error(E.Cause(err, "initial rule-set: ", s.options.Tag))
+	// 	}
+	// }
+	s.startupTicker = time.NewTicker(10 * time.Second)
 	s.updateTicker = time.NewTicker(s.updateInterval)
 	return nil
 }
@@ -204,13 +207,18 @@ func (s *RemoteRuleSet) loadBytes(content []byte) error {
 
 func (s *RemoteRuleSet) loopUpdate() {
 	if time.Since(s.lastUpdated) > s.updateInterval {
-		err := s.fetch(s.ctx, nil)
-		if err != nil {
-			s.logger.Error("fetch rule-set ", s.options.Tag, ": ", err)
-		} else if s.refs.Load() == 0 {
-			s.rules = nil
-		}
+		s.updateOnce()
 	}
+	for s.lastUpdated.IsZero() {
+		select {
+		case <-s.ctx.Done():
+			return
+		case <-s.startupTicker.C:
+			s.updateOnce()
+		}
+
+	}
+
 	for {
 		runtime.GC()
 		select {
@@ -315,6 +323,9 @@ func (s *RemoteRuleSet) fetch(ctx context.Context, startContext *adapter.HTTPSta
 func (s *RemoteRuleSet) Close() error {
 	s.rules = nil
 	s.cancel()
+	if s.startupTicker != nil {
+		s.startupTicker.Stop()
+	}
 	if s.updateTicker != nil {
 		s.updateTicker.Stop()
 	}

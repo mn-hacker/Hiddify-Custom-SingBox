@@ -243,7 +243,7 @@ type URLTestGroup struct {
 	started                      bool
 	lastActive                   common.TypedValue[time.Time]
 
-	checkingEx       atomic.Bool // H
+	checkingEx       atomic.Bool //H
 	currentLinkIndex int         //H
 	lastForceRecheck time.Time   //H
 }
@@ -335,7 +335,7 @@ func (g *URLTestGroup) Close() error {
 }
 
 func (g *URLTestGroup) Select(network string) (adapter.Outbound, bool) {
-	var minDelay uint16
+	var minDelay uint16 = TimeoutDelay
 	var minOutbound adapter.Outbound
 	switch network {
 	case N.NetworkTCP:
@@ -358,7 +358,7 @@ func (g *URLTestGroup) Select(network string) (adapter.Outbound, bool) {
 			continue
 		}
 		history := g.history.LoadURLTestHistory(RealTag(detour))
-		if history == nil {
+		if isTimeout(history) {
 			continue
 		}
 		if minDelay == 0 || minDelay > history.Delay+g.tolerance {
