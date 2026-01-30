@@ -10,6 +10,7 @@ import (
 	"github.com/sagernet/sing-box/experimental/deprecated"
 	"github.com/sagernet/sing-box/include"
 	"github.com/sagernet/sing-box/option"
+	"github.com/sagernet/sing/common"
 	E "github.com/sagernet/sing/common/exceptions"
 	"github.com/sagernet/sing/common/json"
 	"github.com/sagernet/sing/service"
@@ -103,6 +104,10 @@ func (s *StartedService) newInstanceOptions(options option.Options, overrideOpti
 	if err != nil {
 		cancel()
 		return nil, err
+	}
+	experimentalOptions := common.PtrValueOrDefault(options.Experimental)
+	if experimentalOptions.UnifiedDelay != nil && experimentalOptions.UnifiedDelay.Enabled {
+		ctx = urltest.ContextWithIsUnifiedDelay(ctx)
 	}
 	i.instance = boxInstance
 	i.clashServer = service.FromContext[adapter.ClashServer](ctx)
