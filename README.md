@@ -1,20 +1,21 @@
-> Sponsored by [Warp](https://go.warp.dev/sing-box), built for coding with multiple AI agents
+# sing-box-extended
 
-<a href="https://go.warp.dev/sing-box">
-<img alt="Warp sponsorship" width="400" src="https://github.com/warpdotdev/brand-assets/raw/refs/heads/main/Github/Sponsor/Warp-Github-LG-02.png">
-</a>
+Sing-box with extended features.
 
----
+## Features
 
-# sing-box
+* Amnezia 1.5
+* WARP
+* Tunneling
+* Mieru
+* XHTTP
+* SDNS (DNSCrypt)
+* Extended Wireguard options
+* Unified delay
 
-The universal proxy platform.
+## Examples
 
-[![Packaging status](https://repology.org/badge/vertical-allrepos/sing-box.svg)](https://repology.org/project/sing-box/versions)
-
-## Documentation
-
-https://sing-box.sagernet.org
+https://github.com/shtorm-7/sing-box-extended/tree/extended/examples
 
 ## License
 

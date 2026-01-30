@@ -9,6 +9,7 @@ require (
 	github.com/coder/websocket v1.8.14
 	github.com/cretz/bine v0.2.0
 	github.com/database64128/tfo-go/v2 v2.3.1
+	github.com/enfein/mieru/v3 v3.17.1
 	github.com/go-chi/chi/v5 v5.2.3
 	github.com/go-chi/render v1.0.3
 	github.com/godbus/dbus/v5 v5.2.1
@@ -46,6 +47,7 @@ require (
 	github.com/sagernet/ws v0.0.0-20231204124109-acfe8907c854
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.11.1
+	github.com/tidwall/gjson v1.18.0
 	github.com/vishvananda/netns v0.0.5
 	go.uber.org/zap v1.27.1
 	go4.org/netipx v0.0.0-20231129151722-fdeea329fbba
@@ -61,9 +63,19 @@ require (
 )
 
 require (
+	github.com/AdguardTeam/golibs v0.32.7 // indirect
+	github.com/ameshkov/dnscrypt/v2 v2.4.0
+	github.com/ameshkov/dnsstamps v1.0.3 // indirect
 	github.com/biter777/countries v1.7.5
 	github.com/pires/go-proxyproto v0.8.1
+	github.com/tidwall/match v1.1.1 // indirect
+	github.com/tidwall/pretty v1.2.1 // indirect
+	golang.org/x/sync v0.19.0 // indirect
+	golang.org/x/text v0.32.0 // indirect
+	golang.org/x/tools v0.40.0 // indirect
 )
+
+//replace github.com/sagernet/sing => ../sing
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
@@ -140,9 +152,6 @@ require (
 	github.com/tailscale/netlink v1.1.1-0.20240822203006-4d49adab4de7 // indirect
 	github.com/tailscale/peercred v0.0.0-20250107143737-35a0c7bd7edc // indirect
 	github.com/tailscale/web-client-prebuilt v0.0.0-20250124233751-d4cd19a26976 // indirect
-	github.com/tidwall/gjson v1.18.0 // indirect
-	github.com/tidwall/match v1.1.1 // indirect
-	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/tidwall/sjson v1.2.5 // indirect
 	github.com/u-root/uio v0.0.0-20240224005618-d2acac8f3701 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
@@ -151,14 +160,19 @@ require (
 	go.uber.org/zap/exp v0.3.0 // indirect
 	go4.org/mem v0.0.0-20240501181205-ae6ca9944745 // indirect
 	golang.org/x/oauth2 v0.32.0 // indirect
-	golang.org/x/sync v0.19.0 // indirect
 	golang.org/x/term v0.38.0 // indirect
-	golang.org/x/text v0.32.0 // indirect
 	golang.org/x/time v0.11.0 // indirect
-	golang.org/x/tools v0.40.0 // indirect
 	golang.zx2c4.com/wintun v0.0.0-20230126152724-0fa3db229ce2 // indirect
 	golang.zx2c4.com/wireguard/windows v0.5.3 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251022142026-3a174f9686a8 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	lukechampine.com/blake3 v1.3.0 // indirect
+	lukechampine.com/blake3 v1.4.1 // indirect
 )
+
+// replace github.com/sagernet/wireguard-go => github.com/shtorm-7/wireguard-go v0.0.1-beta.7-extended-1.2.0
+
+// replace github.com/sagernet/tailscale => github.com/shtorm-7/tailscale v1.80.3-sing-box-1.12-mod.2-extended-1.0.0
+
+replace github.com/sagernet/sing-dns => github.com/shtorm-7/sing-dns v0.4.6-extended-1.0.0
+
+replace github.com/ameshkov/dnscrypt/v2 => github.com/shtorm-7/dnscrypt/v2 v2.4.0-extended-1.0.0

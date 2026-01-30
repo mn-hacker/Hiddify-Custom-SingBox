@@ -34,6 +34,7 @@ func NewRuleAction(ctx context.Context, logger logger.ContextLogger, action opti
 			RuleActionRouteOptions: RuleActionRouteOptions{
 				OverrideAddress:           M.ParseSocksaddrHostPort(action.RouteOptions.OverrideAddress, 0),
 				OverridePort:              action.RouteOptions.OverridePort,
+				OverrideTunnelDestination: action.RouteOptions.OverrideTunnelDestination,
 				NetworkStrategy:           (*C.NetworkStrategy)(action.RouteOptions.NetworkStrategy),
 				FallbackDelay:             time.Duration(action.RouteOptions.FallbackDelay),
 				UDPDisableDomainUnmapping: action.RouteOptions.UDPDisableDomainUnmapping,
@@ -195,6 +196,7 @@ func (r *RuleActionBypass) String() string {
 type RuleActionRouteOptions struct {
 	OverrideAddress           M.Socksaddr
 	OverridePort              uint16
+	OverrideTunnelDestination string
 	NetworkStrategy           *C.NetworkStrategy
 	NetworkType               []C.InterfaceType
 	FallbackNetworkType       []C.InterfaceType
@@ -222,6 +224,9 @@ func (r *RuleActionRouteOptions) Descriptions() []string {
 	}
 	if r.OverridePort > 0 {
 		descriptions = append(descriptions, F.ToString("override-port=", r.OverridePort))
+	}
+	if r.OverrideTunnelDestination != "" {
+		descriptions = append(descriptions, F.ToString("override-tunnel-destination=", r.OverrideTunnelDestination))
 	}
 	if r.NetworkStrategy != nil {
 		descriptions = append(descriptions, F.ToString("network-strategy=", r.NetworkStrategy))

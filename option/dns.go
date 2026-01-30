@@ -323,6 +323,19 @@ func (o *DNSServerOptions) Upgrade(ctx context.Context) error {
 			fakeipOptions.Inet6Range = legacyOptions.Inet6Range
 		}
 		o.Options = &fakeipOptions
+	case C.DNSTypeSDNS:
+		o.Type = C.DNSTypeSDNS
+		if serverURL == nil {
+			return E.New("invalid server address")
+		}
+		serverAddr := M.ParseSocksaddr(serverURL.Host)
+		if !serverAddr.IsValid() {
+			return E.New("invalid server address")
+		}
+  		o.Options = &SDNSDNSServerOptions{
+  			RemoteDNSServerOptions: remoteOptions,
+  			Stamp: serverAddr.AddrString(),
+  		}
 	default:
 		return E.New("unsupported DNS server scheme: ", serverType)
 	}
@@ -406,4 +419,9 @@ type FakeIPDNSServerOptions struct {
 type DHCPDNSServerOptions struct {
 	LocalDNSServerOptions
 	Interface string `json:"interface,omitempty"`
+}
+
+type SDNSDNSServerOptions struct {
+	RemoteDNSServerOptions
+	Stamp string `json:"stamp"`
 }

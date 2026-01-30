@@ -37,7 +37,6 @@ func NewManager(logger log.ContextLogger, registry adapter.EndpointRegistry) *Ma
 
 func (m *Manager) Start(stage adapter.StartStage) error {
 	m.access.Lock()
-	defer m.access.Unlock()
 	if m.started && m.stage >= stage {
 		panic("already started")
 	}
@@ -45,9 +44,12 @@ func (m *Manager) Start(stage adapter.StartStage) error {
 	m.stage = stage
 	if stage == adapter.StartStateStart {
 		// started with outbound manager
+		m.access.Unlock()
 		return nil
 	}
-	for _, endpoint := range m.endpoints {
+	endpoints := m.endpoints
+	m.access.Unlock()
+	for _, endpoint := range endpoints {
 		name := "endpoint/" + endpoint.Type() + "[" + endpoint.Tag() + "]"
 		m.logger.Trace(stage, " ", name)
 		startTime := time.Now()

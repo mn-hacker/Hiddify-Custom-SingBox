@@ -26,6 +26,7 @@ import (
 
 	"github.com/sagernet/sing-box/protocol/hiddify/xray"
 	"github.com/sagernet/sing-box/protocol/http"
+	"github.com/sagernet/sing-box/protocol/mieru"
 	"github.com/sagernet/sing-box/protocol/mixed"
 	"github.com/sagernet/sing-box/protocol/naive"
 	"github.com/sagernet/sing-box/protocol/redirect"
@@ -36,6 +37,7 @@ import (
 	"github.com/sagernet/sing-box/protocol/tor"
 	"github.com/sagernet/sing-box/protocol/trojan"
 	"github.com/sagernet/sing-box/protocol/tun"
+	"github.com/sagernet/sing-box/protocol/tunnel"
 	"github.com/sagernet/sing-box/protocol/vless"
 	"github.com/sagernet/sing-box/protocol/vmess"
 	"github.com/sagernet/sing-box/service/resolved"
@@ -94,6 +96,7 @@ func OutboundRegistry() *outbound.Registry {
 	ssh.RegisterOutbound(registry)
 	shadowtls.RegisterOutbound(registry)
 	vless.RegisterOutbound(registry)
+	mieru.RegisterOutbound(registry)
 	anytls.RegisterOutbound(registry)
 	hinvalid.RegisterOutbound(registry)
 	xray.RegisterOutbound(registry)
@@ -108,6 +111,9 @@ func OutboundRegistry() *outbound.Registry {
 func EndpointRegistry() *endpoint.Registry {
 	registry := endpoint.NewRegistry()
 
+	tunnel.RegisterServerEndpoint(registry)
+	tunnel.RegisterClientEndpoint(registry)
+
 	registerWireGuardEndpoint(registry)
 	registerTailscaleEndpoint(registry)
 
@@ -121,6 +127,7 @@ func DNSTransportRegistry() *dns.TransportRegistry {
 	transport.RegisterUDP(registry)
 	transport.RegisterTLS(registry)
 	transport.RegisterHTTPS(registry)
+	transport.RegisterSDNS(registry)
 	hosts.RegisterTransport(registry)
 	local.RegisterTransport(registry)
 	fakeip.RegisterTransport(registry)

@@ -15,15 +15,19 @@ const (
 	TypeTrojan       = "trojan"
 	TypeNaive        = "naive"
 	TypeWireGuard    = "wireguard"
+	TypeWARP         = "warp"
 	TypeHysteria     = "hysteria"
 	TypeTor          = "tor"
 	TypeSSH          = "ssh"
 	TypeShadowTLS    = "shadowtls"
+	TypeMieru        = "mieru"
 	TypeAnyTLS       = "anytls"
 	TypeShadowsocksR = "shadowsocksr"
 	TypeVLESS        = "vless"
 	TypeTUIC         = "tuic"
 	TypeHysteria2    = "hysteria2"
+	TypeTunnelClient = "tunnel_client"
+	TypeTunnelServer = "tunnel_server"
 	TypeTailscale    = "tailscale"
 	TypeDERP         = "derp"
 	TypeResolved     = "resolved"
@@ -71,6 +75,8 @@ func ProxyDisplayName(proxyType string) string {
 		return "Naive"
 	case TypeWireGuard:
 		return "WireGuard"
+	case TypeWARP:
+		return "WARP"
 	case TypeHysteria:
 		return "Hysteria"
 	case TypeTor:
@@ -87,6 +93,8 @@ func ProxyDisplayName(proxyType string) string {
 		return "TUIC"
 	case TypeHysteria2:
 		return "Hysteria2"
+	case TypeMieru:
+		return "Mieru"
 	case TypeAnyTLS:
 		return "AnyTLS"
 	case TypeSelector:
@@ -99,6 +107,10 @@ func ProxyDisplayName(proxyType string) string {
 		return "xray"
 	case TypeCustom:
 		return "custom"
+	case TypeTunnelClient:
+		return "Tunnel Client"
+	case TypeTunnelServer:
+		return "Tunnel Server"
 	default:
 		return "Unknown"
 	}
