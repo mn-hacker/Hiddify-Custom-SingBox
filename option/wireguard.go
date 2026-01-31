@@ -3,6 +3,7 @@ package option
 import (
 	"net/netip"
 
+	C "github.com/sagernet/sing-box/constant"
 	"github.com/sagernet/sing/common/json/badoption"
 )
 
@@ -48,6 +49,7 @@ type WireGuardWARPEndpointOptions struct {
 	UniqueIdentifier string `json:"unique_identifier,omitempty"` //h
 	ServerOptions           //H
 	WireGuardHiddify        //H
+	*C.WARPConfig           //H
 }
 
 type WARPProfile struct {
@@ -56,6 +58,7 @@ type WARPProfile struct {
 	AuthToken  string `json:"auth_token,omitempty"`
 	Recreate   bool   `json:"recreate,omitempty"`
 	Detour     string `json:"detour,omitempty"`
+	License    string `json:"license,omitempty"`
 }
 
 type LegacyWireGuardOutboundOptions struct {
