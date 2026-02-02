@@ -38,6 +38,7 @@ const (
 	TypeHInvalidConfig = "hinvalid" //H
 	TypeXray           = "xray"     //H
 	TypeCustom         = "custom"   //H
+	TypeAwg            = "awg"      //H
 )
 
 const (
@@ -111,6 +112,8 @@ func ProxyDisplayName(proxyType string) string {
 		return "Tunnel Client"
 	case TypeTunnelServer:
 		return "Tunnel Server"
+	case TypeAwg:
+		return "Awg"
 	default:
 		return "Unknown"
 	}

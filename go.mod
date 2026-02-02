@@ -2,6 +2,8 @@ module github.com/sagernet/sing-box
 
 go 1.24.7
 
+require github.com/amnezia-vpn/amneziawg-go v0.2.16
+
 require (
 	github.com/anthropics/anthropic-sdk-go v1.19.0
 	github.com/anytls/sing-anytls v0.0.11
@@ -166,6 +168,7 @@ require (
 	golang.zx2c4.com/wireguard/windows v0.5.3 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251022142026-3a174f9686a8 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
+	gvisor.dev/gvisor v0.0.0-20231202080848-1f7806d17489 // indirect
 	lukechampine.com/blake3 v1.4.1 // indirect
 )
 
