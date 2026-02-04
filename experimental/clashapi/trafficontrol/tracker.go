@@ -5,14 +5,14 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/gofrs/uuid/v5"
 	"github.com/sagernet/sing-box/adapter"
+	C "github.com/sagernet/sing-box/constant"
 	"github.com/sagernet/sing/common"
 	"github.com/sagernet/sing/common/bufio"
 	F "github.com/sagernet/sing/common/format"
 	"github.com/sagernet/sing/common/json"
 	N "github.com/sagernet/sing/common/network"
-
-	"github.com/gofrs/uuid/v5"
 )
 
 type TrackerMetadata struct {
@@ -63,6 +63,12 @@ func (t TrackerMetadata) MarshalJSON() ([]byte, error) {
 		rule = F.ToString(t.Rule, " => ", t.Rule.Action())
 	} else {
 		rule = "final"
+	}
+	chains := t.Chain
+	if t.OutboundType == C.TypeBalancer {
+		chains = make([]string, len(t.Chain)+1)
+		chains[0] = t.Metadata.GetRealOutbound()
+		copy(chains[1:], t.Chain)
 	}
 	return json.Marshal(map[string]any{
 		"id": t.ID,

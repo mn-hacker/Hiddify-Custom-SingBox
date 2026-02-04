@@ -323,7 +323,7 @@ func (c *CacheFile) StoreWARPConfig() bool {
 	return c.storeWARPConfig
 }
 
-func (c *CacheFile) LoadWARPConfig(tag string) *adapter.SavedBinary {
+func (c *CacheFile) LoadBinary(tag string) *adapter.SavedBinary {
 	var savedConfig adapter.SavedBinary
 	err := c.DB.View(func(t *bbolt.Tx) error {
 		bucket := c.bucket(t, bucketRuleSet)
@@ -342,7 +342,7 @@ func (c *CacheFile) LoadWARPConfig(tag string) *adapter.SavedBinary {
 	return &savedConfig
 }
 
-func (c *CacheFile) SaveWARPConfig(tag string, set *adapter.SavedBinary) error {
+func (c *CacheFile) SaveBinary(tag string, set *adapter.SavedBinary) error {
 	return c.DB.Batch(func(t *bbolt.Tx) error {
 		bucket, err := c.createBucket(t, bucketRuleSet)
 		if err != nil {

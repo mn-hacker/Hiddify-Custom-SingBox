@@ -22,6 +22,7 @@ import (
 	"github.com/sagernet/sing-box/protocol/direct"
 	protocolDNS "github.com/sagernet/sing-box/protocol/dns"
 	"github.com/sagernet/sing-box/protocol/group"
+	"github.com/sagernet/sing-box/protocol/group/balancer"
 	"github.com/sagernet/sing-box/protocol/hiddify/hinvalid"
 
 	"github.com/sagernet/sing-box/protocol/hiddify/xray"
@@ -100,6 +101,7 @@ func OutboundRegistry() *outbound.Registry {
 	anytls.RegisterOutbound(registry)
 	hinvalid.RegisterOutbound(registry)
 	xray.RegisterOutbound(registry)
+	balancer.RegisterLoadBalance(registry)
 
 	registerQUICOutbounds(registry)
 	registerWireGuardOutbound(registry)
