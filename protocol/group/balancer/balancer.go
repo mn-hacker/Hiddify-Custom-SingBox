@@ -24,7 +24,7 @@ func RegisterLoadBalance(registry *outbound.Registry) {
 	outbound.Register[option.BalancerOutboundOptions](registry, C.TypeBalancer, NewLoadBalance)
 }
 
-var _ adapter.OutboundGroup = (*LoadBalance)(nil)
+var _ adapter.OutboundGroup = (*Balancer)(nil)
 
 const (
 	StrategyRoundRobin        = "round-robin"
@@ -33,7 +33,7 @@ const (
 	StrategyLowestDelay       = "lowest-delay"
 )
 
-type LoadBalance struct {
+type Balancer struct {
 	outbound.Adapter
 	ctx                          context.Context
 	router                       adapter.Router
@@ -57,8 +57,8 @@ type LoadBalance struct {
 }
 
 func NewLoadBalance(ctx context.Context, router adapter.Router, logger log.ContextLogger, tag string, options option.BalancerOutboundOptions) (adapter.Outbound, error) {
-	outbound := &LoadBalance{
-		Adapter:  outbound.NewAdapter(C.TypeURLTest, tag, []string{N.NetworkTCP, N.NetworkUDP}, options.Outbounds),
+	outbound := &Balancer{
+		Adapter:  outbound.NewAdapter(C.TypeBalancer, tag, []string{N.NetworkTCP, N.NetworkUDP}, options.Outbounds),
 		ctx:      ctx,
 		router:   router,
 		outbound: service.FromContext[adapter.OutboundManager](ctx),
@@ -78,7 +78,11 @@ func NewLoadBalance(ctx context.Context, router adapter.Router, logger log.Conte
 	return outbound, nil
 }
 
-func (s *LoadBalance) Start() error {
+func (s *Balancer) Strategy() string {
+	return s.options.Strategy
+}
+
+func (s *Balancer) Start() error {
 	s.monitor = monitoring.Get(s.ctx)
 	s.logger.Info("starting load balance, monitoring enabled: ", s.monitor != nil)
 	outbounds := make([]adapter.Outbound, 0, len(s.tags))
@@ -105,13 +109,13 @@ func (s *LoadBalance) Start() error {
 	return nil
 }
 
-func (s *LoadBalance) PostStart() error {
+func (s *Balancer) PostStart() error {
 	go s.worker()
 
 	return nil
 }
 
-func (s *LoadBalance) worker() {
+func (s *Balancer) worker() {
 	observer, err := s.monitor.GroupObserver(s.Tag())
 	if err != nil {
 		s.logger.Error("failed to observe monitoring group: ", err)
@@ -141,23 +145,23 @@ func (s *LoadBalance) worker() {
 		}
 	}
 }
-func (s *LoadBalance) Close() error {
+func (s *Balancer) Close() error {
 	if s.close != nil {
 		close(s.close)
 	}
 	return nil
 }
 
-func (s *LoadBalance) Now() string {
+func (s *Balancer) Now() string {
 
 	return s.strategyFn.Now()
 }
 
-func (s *LoadBalance) All() []string {
+func (s *Balancer) All() []string {
 	return s.tags
 }
 
-func (s *LoadBalance) DialContext(ctx context.Context, network string, destination M.Socksaddr) (net.Conn, error) {
+func (s *Balancer) DialContext(ctx context.Context, network string, destination M.Socksaddr) (net.Conn, error) {
 	metadata := adapter.ContextFrom(ctx)
 	outbound := s.strategyFn.Select(metadata, true)
 	if outbound == nil || !common.Contains(outbound.Network(), network) {
@@ -177,7 +181,7 @@ func (s *LoadBalance) DialContext(ctx context.Context, network string, destinati
 	return nil, err
 }
 
-func (s *LoadBalance) ListenPacket(ctx context.Context, destination M.Socksaddr) (net.PacketConn, error) {
+func (s *Balancer) ListenPacket(ctx context.Context, destination M.Socksaddr) (net.PacketConn, error) {
 	metadata := adapter.ContextFrom(ctx)
 	outbound := s.strategyFn.Select(metadata, true)
 	if outbound == nil || !common.Contains(outbound.Network(), N.NetworkUDP) {
@@ -196,17 +200,17 @@ func (s *LoadBalance) ListenPacket(ctx context.Context, destination M.Socksaddr)
 	return nil, err
 }
 
-func (s *LoadBalance) NewConnectionEx(ctx context.Context, conn net.Conn, metadata adapter.InboundContext, onClose N.CloseHandlerFunc) {
+func (s *Balancer) NewConnectionEx(ctx context.Context, conn net.Conn, metadata adapter.InboundContext, onClose N.CloseHandlerFunc) {
 	ctx = interrupt.ContextWithIsExternalConnection(ctx)
 	s.connection.NewConnection(ctx, s, conn, metadata, onClose)
 }
 
-func (s *LoadBalance) NewPacketConnectionEx(ctx context.Context, conn N.PacketConn, metadata adapter.InboundContext, onClose N.CloseHandlerFunc) {
+func (s *Balancer) NewPacketConnectionEx(ctx context.Context, conn N.PacketConn, metadata adapter.InboundContext, onClose N.CloseHandlerFunc) {
 	ctx = interrupt.ContextWithIsExternalConnection(ctx)
 	s.connection.NewPacketConnection(ctx, s, conn, metadata, onClose)
 }
 
-func (s *LoadBalance) NewDirectRouteConnection(metadata adapter.InboundContext, routeContext tun.DirectRouteContext, timeout time.Duration) (tun.DirectRouteDestination, error) {
+func (s *Balancer) NewDirectRouteConnection(metadata adapter.InboundContext, routeContext tun.DirectRouteContext, timeout time.Duration) (tun.DirectRouteDestination, error) {
 
 	selected := s.strategyFn.Select(&metadata, true)
 	if selected == nil {

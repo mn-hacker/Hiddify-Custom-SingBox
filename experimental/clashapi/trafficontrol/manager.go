@@ -34,9 +34,10 @@ type ConnectionEvent struct {
 }
 
 type Manager struct {
-	uploadTotal   atomic.Int64
-	downloadTotal atomic.Int64
-
+	uploadTotal             atomic.Int64
+	downloadTotal           atomic.Int64
+	outboundUploadTotal     sync.Map
+	outboundDownloadTotal   sync.Map
 	connections             compatible.Map[uuid.UUID, Tracker]
 	closedConnectionsAccess sync.Mutex
 	closedConnections       list.List[TrackerMetadata]
@@ -87,16 +88,30 @@ func (m *Manager) Leave(c Tracker) {
 	}
 }
 
-func (m *Manager) PushUploaded(size int64) {
+func (m *Manager) PushUploaded(outbound string, size int64) {
 	m.uploadTotal.Add(size)
+	v, _ := m.outboundUploadTotal.LoadOrStore(outbound, &atomic.Int64{})
+	v.(*atomic.Int64).Add(size)
 }
 
-func (m *Manager) PushDownloaded(size int64) {
+func (m *Manager) PushDownloaded(outbound string, size int64) {
 	m.downloadTotal.Add(size)
+	v, _ := m.outboundDownloadTotal.LoadOrStore(outbound, &atomic.Int64{})
+	v.(*atomic.Int64).Add(100)
 }
 
 func (m *Manager) Total() (up int64, down int64) {
 	return m.uploadTotal.Load(), m.downloadTotal.Load()
+}
+
+func (m *Manager) OutboundUsage(outbound string) (up int64, down int64) {
+	if vUp, ok := m.outboundUploadTotal.Load(outbound); ok {
+		up = vUp.(*atomic.Int64).Load()
+	}
+	if vDown, ok := m.outboundDownloadTotal.Load(outbound); ok {
+		down = vDown.(*atomic.Int64).Load()
+	}
+	return
 }
 
 func (m *Manager) ConnectionsLen() int {
@@ -150,6 +165,14 @@ func (m *Manager) Snapshot() *Snapshot {
 func (m *Manager) ResetStatistic() {
 	m.uploadTotal.Store(0)
 	m.downloadTotal.Store(0)
+	m.outboundUploadTotal.Range(func(key, value any) bool {
+		m.outboundUploadTotal.Delete(key)
+		return true
+	})
+	m.outboundDownloadTotal.Range(func(key, value any) bool {
+		m.outboundDownloadTotal.Delete(key)
+		return true
+	})
 }
 
 type Snapshot struct {

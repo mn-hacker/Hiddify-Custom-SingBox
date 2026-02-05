@@ -148,5 +148,11 @@ func (i *Instance) UrlTestHistory() *urltest.HistoryStorage {
 
 func (i *Instance) Context() context.Context {
 	return i.ctx
+}
 
+func (i *Instance) CacheFile() adapter.CacheFile {
+	return i.cacheFile
+}
+func (i *Instance) ClashServer() adapter.ClashServer {
+	return i.clashServer
 }

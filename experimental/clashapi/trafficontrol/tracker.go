@@ -132,11 +132,15 @@ func NewTCPTracker(conn net.Conn, manager *Manager, metadata adapter.InboundCont
 		outbound     string
 		outboundType string
 	)
-	if matchOutbound != nil {
-		next = matchOutbound.Tag()
-	} else {
-		next = outboundManager.Default().Tag()
+	next = metadata.GetRealOutbound()
+	if next == "" {
+		if matchOutbound != nil {
+			next = matchOutbound.Tag()
+		} else {
+			next = outboundManager.Default().Tag()
+		}
 	}
+
 	for {
 		detour, loaded := outboundManager.Outbound(next)
 		if !loaded {
@@ -156,10 +160,10 @@ func NewTCPTracker(conn net.Conn, manager *Manager, metadata adapter.InboundCont
 	tracker := &TCPConn{
 		ExtendedConn: bufio.NewCounterConn(conn, []N.CountFunc{func(n int64) {
 			upload.Add(n)
-			manager.PushUploaded(n)
+			manager.PushUploaded(outbound, n)
 		}}, []N.CountFunc{func(n int64) {
 			download.Add(n)
-			manager.PushDownloaded(n)
+			manager.PushDownloaded(outbound, n)
 		}}),
 		metadata: TrackerMetadata{
 			ID:           id,
@@ -237,10 +241,10 @@ func NewUDPTracker(conn N.PacketConn, manager *Manager, metadata adapter.Inbound
 	trackerConn := &UDPConn{
 		PacketConn: bufio.NewCounterPacketConn(conn, []N.CountFunc{func(n int64) {
 			upload.Add(n)
-			manager.PushUploaded(n)
+			manager.PushUploaded(outbound, n)
 		}}, []N.CountFunc{func(n int64) {
 			download.Add(n)
-			manager.PushDownloaded(n)
+			manager.PushDownloaded(outbound, n)
 		}}),
 		metadata: TrackerMetadata{
 			ID:           id,
