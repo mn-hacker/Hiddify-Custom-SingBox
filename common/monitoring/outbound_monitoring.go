@@ -348,7 +348,7 @@ func (m *OutboundMonitoring) TestNow(outboundTag string) error {
 		}
 
 		task := &testTask{
-			outboundTag: outboundTag,
+			outboundTag: tag,
 			cycleID:     m.cycleSeq,
 			priority:    true,
 		}
