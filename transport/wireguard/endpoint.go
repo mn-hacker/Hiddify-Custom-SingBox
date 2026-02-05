@@ -15,7 +15,7 @@ import (
 
 	"github.com/sagernet/sing-box/adapter"
 	"github.com/sagernet/sing-box/common/dialer"
-	"github.com/sagernet/sing-tun"
+	tun "github.com/sagernet/sing-tun"
 	"github.com/sagernet/sing/common"
 	E "github.com/sagernet/sing/common/exceptions"
 	F "github.com/sagernet/sing/common/format"
@@ -286,4 +286,11 @@ func (c peerConfig) GenerateIpcLines() string {
 		ipcLines += "\npersistent_keepalive_interval=" + F.ToString(c.keepalive)
 	}
 	return ipcLines
+}
+
+func (e *Endpoint) IsReady() bool {
+	if e.device == nil {
+		return false
+	}
+	return e.device.IsUnderLoad()
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/sagernet/sing-box/adapter"
 	"github.com/sagernet/sing-box/adapter/endpoint"
 	"github.com/sagernet/sing-box/common/dialer"
+	"github.com/sagernet/sing-box/common/monitoring"
 	C "github.com/sagernet/sing-box/constant"
 	"github.com/sagernet/sing-box/log"
 	"github.com/sagernet/sing-box/option"
@@ -38,6 +39,7 @@ type Endpoint struct {
 	logger         logger.ContextLogger
 	localAddresses []netip.Prefix
 	endpoint       *wireguard.Endpoint
+	started        bool
 }
 
 func NewEndpoint(ctx context.Context, router adapter.Router, logger log.ContextLogger, tag string, options option.WireGuardEndpointOptions) (adapter.Endpoint, error) {
@@ -121,9 +123,25 @@ func (w *Endpoint) Start(stage adapter.StartStage) error {
 	case adapter.StartStateStart:
 		return w.endpoint.Start(false)
 	case adapter.StartStatePostStart:
+		go w.readyChecker()
 		return w.endpoint.Start(true)
 	}
 	return nil
+}
+func (w *Endpoint) readyChecker() {
+	defer func() {
+		w.started = true
+		monitoring.Get(w.ctx).TestNow(w.Tag())
+	}()
+	for i := 0; i < 10; i++ {
+		if w.IsReady() {
+			return
+		}
+		<-time.After(time.Millisecond * 500)
+	}
+}
+func (w *Endpoint) IsReady() bool {
+	return w.started
 }
 
 func (w *Endpoint) Close() error {

@@ -248,5 +248,3 @@ replace github.com/ameshkov/dnscrypt/v2 => github.com/shtorm-7/dnscrypt/v2 v2.4.
 replace github.com/Psiphon-Labs/quic-go => github.com/hiddify/psiphon-quic-go v0.0.0-20260205155832-2164d1653824
 
 replace github.com/Psiphon-Labs/psiphon-tls => github.com/hiddify/psiphon-tls v0.0.0-20260205181946-4af85c2fb9f2
-
-replace golang.org/x/crypto => golang.org/x/crypto v0.39.0
