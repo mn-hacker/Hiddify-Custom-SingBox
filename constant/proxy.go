@@ -26,6 +26,7 @@ const (
 	TypeVLESS        = "vless"
 	TypeTUIC         = "tuic"
 	TypeHysteria2    = "hysteria2"
+	TypePsiphon      = "psiphon"
 	TypeTunnelClient = "tunnel_client"
 	TypeTunnelServer = "tunnel_server"
 	TypeTailscale    = "tailscale"
@@ -99,6 +100,8 @@ func ProxyDisplayName(proxyType string) string {
 		return "Mieru"
 	case TypeAnyTLS:
 		return "AnyTLS"
+	case TypePsiphon:
+		return "Psiphon"
 	case TypeSelector:
 		return "Selector"
 	case TypeURLTest:
