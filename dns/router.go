@@ -273,14 +273,14 @@ func (r *Router) Exchange(ctx context.Context, message *mDNS.Msg, options adapte
 				}
 			}
 
-			responseCheck := func(responseAddrs []netip.Addr) bool {
-				responseAddrs = FilterBlocked(responseAddrs)
-				metadata.DestinationAddresses = responseAddrs
-				if rule != nil && rule.WithAddressLimit() {
+			var responseCheck func(responseAddrs []netip.Addr) bool
+			if rule != nil && rule.WithAddressLimit() {
+				responseCheck = func(responseAddrs []netip.Addr) bool {
+					metadata.DestinationAddresses = responseAddrs
 					return rule.MatchAddressLimit(metadata)
 				}
-				return len(responseAddrs) > 0
 			}
+
 			if dnsOptions.Strategy == C.DomainStrategyAsIS {
 				dnsOptions.Strategy = r.defaultDomainStrategy
 			}

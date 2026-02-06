@@ -29,6 +29,8 @@ const (
 	DNSTypeDHCP        = "dhcp"
 	DNSTypeTailscale   = "tailscale"
 	DNSTypeSDNS        = "sdns"
+
+	DNSTypeMulti = "multi" //H
 )
 
 const (

@@ -332,10 +332,10 @@ func (o *DNSServerOptions) Upgrade(ctx context.Context) error {
 		if !serverAddr.IsValid() {
 			return E.New("invalid server address")
 		}
-  		o.Options = &SDNSDNSServerOptions{
-  			RemoteDNSServerOptions: remoteOptions,
-  			Stamp: serverAddr.AddrString(),
-  		}
+		o.Options = &SDNSDNSServerOptions{
+			RemoteDNSServerOptions: remoteOptions,
+			Stamp:                  serverAddr.AddrString(),
+		}
 	default:
 		return E.New("unsupported DNS server scheme: ", serverType)
 	}
@@ -424,4 +424,11 @@ type DHCPDNSServerOptions struct {
 type SDNSDNSServerOptions struct {
 	RemoteDNSServerOptions
 	Stamp string `json:"stamp"`
+}
+
+type MultiDNSServerOptions struct {
+	RawLocalDNSServerOptions
+	Servers      []string           `json:"servers,omitempty"`
+	Parallel     bool               `json:"parallel,omitempty"`
+	IgnoreRanges []badoption.Prefix `json:"ignore_ranges,omitempty"`
 }
