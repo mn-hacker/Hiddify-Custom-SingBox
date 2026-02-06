@@ -20,6 +20,7 @@ type DNSRule interface {
 	Rule
 	WithAddressLimit() bool
 	MatchAddressLimit(metadata *InboundContext) bool
+	BypassIfFailed() bool
 }
 
 type RuleAction interface {

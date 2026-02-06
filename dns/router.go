@@ -286,6 +286,7 @@ func (r *Router) Exchange(ctx context.Context, message *mDNS.Msg, options adapte
 			}
 			response, err = r.client.Exchange(dnsCtx, transport, message, dnsOptions, responseCheck)
 			var rejected bool
+			var bypass bool
 			if err != nil {
 				if errors.Is(err, ErrResponseRejectedCached) {
 					rejected = true
@@ -295,13 +296,21 @@ func (r *Router) Exchange(ctx context.Context, message *mDNS.Msg, options adapte
 					r.logger.DebugContext(ctx, E.Cause(err, "response rejected for ", FormatQuestion(message.Question[0].String())))
 				} else if len(message.Question) > 0 {
 					r.logger.ErrorContext(ctx, E.Cause(err, "exchange failed for ", FormatQuestion(message.Question[0].String())))
+
 				} else {
 					r.logger.ErrorContext(ctx, E.Cause(err, "exchange failed for <empty query>"))
+				}
+				if rule != nil && rule.BypassIfFailed() {
+					bypass = true
 				}
 			}
 			if responseCheck != nil && rejected {
 				continue
 			}
+			if bypass {
+				continue
+			}
+
 			break
 		}
 	}
@@ -377,6 +386,9 @@ func (r *Router) Lookup(ctx context.Context, domain string, options adapter.DNSQ
 			if rule != nil {
 				switch action := rule.Action().(type) {
 				case *R.RuleActionReject:
+					if rule.BypassIfFailed() {
+						continue
+					}
 					return nil, &R.RejectedError{Cause: action.Error(ctx)}
 				case *R.RuleActionPredefined:
 					if action.Rcode != mDNS.RcodeSuccess {
@@ -390,6 +402,8 @@ func (r *Router) Lookup(ctx context.Context, domain string, options adapter.DNSQ
 								responseAddrs = append(responseAddrs, M.AddrFromIP(record.AAAA))
 							}
 						}
+						responseAddrs = FilterBlocked(responseAddrs)
+
 					}
 					goto response
 				}
@@ -405,6 +419,10 @@ func (r *Router) Lookup(ctx context.Context, domain string, options adapter.DNSQ
 				dnsOptions.Strategy = r.defaultDomainStrategy
 			}
 			responseAddrs, err = r.client.Lookup(dnsCtx, transport, domain, dnsOptions, responseCheck)
+			responseAddrs = FilterBlocked(responseAddrs)
+			if rule != nil && len(responseAddrs) == 0 && rule.BypassIfFailed() {
+				continue
+			}
 			if responseCheck == nil || err == nil {
 				break
 			}

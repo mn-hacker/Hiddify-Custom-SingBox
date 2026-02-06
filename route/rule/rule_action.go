@@ -13,7 +13,7 @@ import (
 	"github.com/sagernet/sing-box/common/sniff"
 	C "github.com/sagernet/sing-box/constant"
 	"github.com/sagernet/sing-box/option"
-	"github.com/sagernet/sing-tun"
+	tun "github.com/sagernet/sing-tun"
 	"github.com/sagernet/sing/common"
 	E "github.com/sagernet/sing/common/exceptions"
 	F "github.com/sagernet/sing/common/format"
@@ -127,10 +127,11 @@ func NewDNSRuleAction(logger logger.ContextLogger, action option.DNSRuleAction) 
 		return &RuleActionDNSRoute{
 			Server: action.RouteOptions.Server,
 			RuleActionDNSRouteOptions: RuleActionDNSRouteOptions{
-				Strategy:     C.DomainStrategy(action.RouteOptions.Strategy),
-				DisableCache: action.RouteOptions.DisableCache,
-				RewriteTTL:   action.RouteOptions.RewriteTTL,
-				ClientSubnet: netip.Prefix(common.PtrValueOrDefault(action.RouteOptions.ClientSubnet)),
+				Strategy:       C.DomainStrategy(action.RouteOptions.Strategy),
+				DisableCache:   action.RouteOptions.DisableCache,
+				RewriteTTL:     action.RouteOptions.RewriteTTL,
+				ClientSubnet:   netip.Prefix(common.PtrValueOrDefault(action.RouteOptions.ClientSubnet)),
+				BypassIfFailed: action.RouteOptions.BypassIfFailed,
 			},
 		}
 	case C.RuleActionTypeRouteOptions:
@@ -207,6 +208,7 @@ type RuleActionRouteOptions struct {
 	TLSFragment               bool
 	TLSFragmentFallbackDelay  time.Duration
 	TLSRecordFragment         bool
+	BypassIfFailed            bool
 }
 
 func (r *RuleActionRouteOptions) Type() string {
@@ -286,10 +288,11 @@ func (r *RuleActionDNSRoute) String() string {
 }
 
 type RuleActionDNSRouteOptions struct {
-	Strategy     C.DomainStrategy
-	DisableCache bool
-	RewriteTTL   *uint32
-	ClientSubnet netip.Prefix
+	Strategy       C.DomainStrategy
+	DisableCache   bool
+	RewriteTTL     *uint32
+	ClientSubnet   netip.Prefix
+	BypassIfFailed bool
 }
 
 func (r *RuleActionDNSRouteOptions) Type() string {
