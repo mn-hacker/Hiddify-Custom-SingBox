@@ -132,13 +132,11 @@ func NewTCPTracker(conn net.Conn, manager *Manager, metadata adapter.InboundCont
 		outbound     string
 		outboundType string
 	)
-	next = metadata.GetRealOutbound()
-	if next == "" {
-		if matchOutbound != nil {
-			next = matchOutbound.Tag()
-		} else {
-			next = outboundManager.Default().Tag()
-		}
+
+	if matchOutbound != nil {
+		next = matchOutbound.Tag()
+	} else {
+		next = outboundManager.Default().Tag()
 	}
 
 	for {
