@@ -5,7 +5,7 @@ go 1.24.7
 require github.com/amnezia-vpn/amneziawg-go v0.2.16
 
 require (
-	github.com/Psiphon-Labs/psiphon-tunnel-core v1.0.11-0.20260202154140-a3384a551c62
+	github.com/Psiphon-Labs/psiphon-tunnel-core v1.0.11-0.20260126173038-c86a1497a760
 	github.com/anthropics/anthropic-sdk-go v1.19.0
 	github.com/anytls/sing-anytls v0.0.11
 	github.com/caddyserver/certmagic v0.25.0
