@@ -24,22 +24,16 @@ type HistoryStorage struct {
 	access       sync.RWMutex
 	delayHistory map[string]*adapter.URLTestHistory
 	updateHook   *observable.Subscriber[struct{}]
-	updateHookv2 *observable.Observer[int]
 }
 
 func NewHistoryStorage() *HistoryStorage {
 	return &HistoryStorage{
 		delayHistory: make(map[string]*adapter.URLTestHistory),
-		updateHookv2: observable.NewObserver(observable.NewSubscriber[int](10), 1),
 	}
 }
 
 func (s *HistoryStorage) SetHook(hook *observable.Subscriber[struct{}]) {
 	s.updateHook = hook
-}
-
-func (s *HistoryStorage) Observer() *observable.Observer[int] {
-	return s.updateHookv2
 }
 
 func (s *HistoryStorage) LoadURLTestHistory(tag string) *adapter.URLTestHistory {
@@ -95,14 +89,12 @@ func (s *HistoryStorage) notifyUpdated() {
 	if updateHook != nil {
 		updateHook.Emit(struct{}{})
 	}
-	s.updateHookv2.Emit(1)
 }
 
 func (s *HistoryStorage) Close() error {
 	s.access.Lock()
 	defer s.access.Unlock()
 	s.updateHook = nil
-	s.updateHookv2.Close()
 	return nil
 }
 
