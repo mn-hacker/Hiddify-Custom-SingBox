@@ -238,7 +238,7 @@ require (
 	tailscale.com v1.58.2 // indirect
 )
 
-replace github.com/sagernet/wireguard-go => github.com/hiddify/wireguard-go v0.0.0-20260202221310-b94beca5cb72
+replace github.com/sagernet/wireguard-go => github.com/hiddify/wireguard-go v0.0.0-20260207195137-b12022450359
 
 replace github.com/sagernet/tailscale => github.com/hiddify/tailscale v1.92.4-sing-box-1.13-mod.6.0.20260202223641-788aa623edeb
 

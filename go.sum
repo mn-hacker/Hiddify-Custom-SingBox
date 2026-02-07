@@ -193,8 +193,8 @@ github.com/hiddify/psiphon-tls v0.0.0-20260205181946-4af85c2fb9f2 h1:42YhXZ/qMbW
 github.com/hiddify/psiphon-tls v0.0.0-20260205181946-4af85c2fb9f2/go.mod h1:7ZUnPnWT5z8J8hxfsVjKHYK77Zme/Y0If1b/zeziiJs=
 github.com/hiddify/tailscale v1.92.4-sing-box-1.13-mod.6.0.20260202223641-788aa623edeb h1:eh+X2WCTfbXdNz5A6k44kWkl9KJbKlVQOfkgZjk3eZs=
 github.com/hiddify/tailscale v1.92.4-sing-box-1.13-mod.6.0.20260202223641-788aa623edeb/go.mod h1:m87GAn4UcesHQF3leaPFEINZETO5za1LGn1GJdNDgNc=
-github.com/hiddify/wireguard-go v0.0.0-20260202221310-b94beca5cb72 h1:l4zZiMU4Ly2ZK27hlX6EjSUDZXFSaQgVmAaJHt32VEM=
-github.com/hiddify/wireguard-go v0.0.0-20260202221310-b94beca5cb72/go.mod h1:hEqi4y5czEg6LYtX2Bpjg+lV0b/J1n+5rA885Z66Mx0=
+github.com/hiddify/wireguard-go v0.0.0-20260207195137-b12022450359 h1:Y3BZF9JkTfFEccxzO7uTXgDSIOELPNeXCw5hCCxJyJw=
+github.com/hiddify/wireguard-go v0.0.0-20260207195137-b12022450359/go.mod h1:hEqi4y5czEg6LYtX2Bpjg+lV0b/J1n+5rA885Z66Mx0=
 github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2s0bqwp9tc8=
 github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
 github.com/insomniacslk/dhcp v0.0.0-20251020182700-175e84fbb167 h1:MEufgJohwIjFi2n3eJv4c/8UdRLQVUwPwSWQPoER+eU=
