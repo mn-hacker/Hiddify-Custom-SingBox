@@ -93,7 +93,7 @@ func (t TrackerMetadata) MarshalJSON() ([]byte, error) {
 }
 
 type Tracker interface {
-	Metadata() TrackerMetadata
+	Metadata() *TrackerMetadata
 	Close() error
 }
 
@@ -103,8 +103,8 @@ type TCPConn struct {
 	manager  *Manager
 }
 
-func (tt *TCPConn) Metadata() TrackerMetadata {
-	return tt.metadata
+func (tt *TCPConn) Metadata() *TrackerMetadata {
+	return &tt.metadata
 }
 
 func (tt *TCPConn) Close() error {
@@ -186,8 +186,8 @@ type UDPConn struct {
 	manager      *Manager
 }
 
-func (ut *UDPConn) Metadata() TrackerMetadata {
-	return ut.metadata
+func (ut *UDPConn) Metadata() *TrackerMetadata {
+	return &ut.metadata
 }
 
 func (ut *UDPConn) Close() error {
