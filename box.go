@@ -528,6 +528,7 @@ func (s *Box) Close() error {
 	default:
 		close(s.done)
 	}
+	closeTimeout := time.Second * 10
 	var err error
 	for _, closeItem := range []struct {
 		name    string
@@ -543,30 +544,47 @@ func (s *Box) Close() error {
 		{"dns-transport", s.dnsTransport},
 		{"network", s.network},
 	} {
-		s.logger.Trace("close ", closeItem.name)
-		startTime := time.Now()
-		err = E.Append(err, closeItem.service.Close(), func(err error) error {
+		cerr := s.closeWithTimeout(closeItem.name, closeTimeout, closeItem.service.Close)
+		err = E.Append(err, cerr, func(err error) error {
 			return E.Cause(err, "close ", closeItem.name)
 		})
-		s.logger.Trace("close ", closeItem.name, " completed (", F.Seconds(time.Since(startTime).Seconds()), "s)")
 	}
 	for _, lifecycleService := range s.internalService {
-		s.logger.Trace("close ", lifecycleService.Name())
-		startTime := time.Now()
-		err = E.Append(err, lifecycleService.Close(), func(err error) error {
+		cerr := s.closeWithTimeout(lifecycleService.Name(), closeTimeout, lifecycleService.Close)
+		err = E.Append(err, cerr, func(err error) error {
 			return E.Cause(err, "close ", lifecycleService.Name())
 		})
-		s.logger.Trace("close ", lifecycleService.Name(), " completed (", F.Seconds(time.Since(startTime).Seconds()), "s)")
 	}
-	s.logger.Trace("close logger")
-	startTime := time.Now()
-	err = E.Append(err, s.logFactory.Close(), func(err error) error {
+	cerr := s.closeWithTimeout("logger", closeTimeout, s.logFactory.Close)
+	err = E.Append(err, cerr, func(err error) error {
 		return E.Cause(err, "close logger")
 	})
-	s.logger.Trace("close logger completed (", F.Seconds(time.Since(startTime).Seconds()), "s)")
 	return err
 }
+func (s *Box) closeWithTimeout(name string, timeout time.Duration, closeFn func() error) (err error) {
+	s.logger.Trace("closeing ", name)
+	startTime := time.Now()
+	defer func() {
+		if err != nil {
+			s.logger.Error("close ", name, " error (", F.Seconds(time.Since(startTime).Seconds()), "s)"+": "+err.Error())
+		} else {
+			s.logger.Trace("close ", name, " completed (", F.Seconds(time.Since(startTime).Seconds()), "s)")
+		}
+	}()
+	done := make(chan error, 1)
 
+	go func() {
+		done <- closeFn()
+	}()
+
+	select {
+	case err = <-done:
+		return err
+	case <-time.After(timeout):
+		return fmt.Errorf("close %s timed out after %s", name, timeout)
+	}
+
+}
 func (s *Box) Network() adapter.NetworkManager {
 	return s.network
 }
