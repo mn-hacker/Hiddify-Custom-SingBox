@@ -122,6 +122,9 @@ func (t *UDPTransport) Exchange(ctx context.Context, message *mDNS.Msg) (*mDNS.M
 	defer t.EndQuery()
 
 	response, err := t.exchange(ctx, message)
+	if t.queryId%100 == 0 {
+		t.Logger.Debug("sent dns queries: ", t.queryId)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -140,11 +143,11 @@ func (t *UDPTransport) exchangeTCP(ctx context.Context, message *mDNS.Msg) (*mDN
 	defer conn.Close()
 	err = WriteMessage(conn, message.Id, message)
 	if err != nil {
-		return nil, E.Cause(err, "write request")
+		return nil, E.Cause(err, "tcp write request")
 	}
 	response, err := ReadMessage(conn)
 	if err != nil {
-		return nil, E.Cause(err, "read response")
+		return nil, E.Cause(err, "tcp read response")
 	}
 	return response, nil
 }
