@@ -2,7 +2,7 @@
 icon: material/alert-decagram
 ---
 
-#### 1.13.0-rc.2
+#### 1.13.0-rc.1
 
 * Fixes and improvements
 
@@ -15,22 +15,17 @@ Important changes since 1.12:
 * Add new options for ACME DNS-01 challenge providers **5**
 * Add Wi-Fi state support for Linux and Windows **6**
 * Add curve preferences, pinned public key SHA256, mTLS and ECH `query_server_name` for TLS options **7**
-* Add kTLS support **8**
-* Add ICMP echo (ping) proxy support **9**
-* Add `interface_address`, `network_interface_address` and `default_interface_address` rule items **10**
-* Add `preferred_by` route rule item **11**
-* Improve `local` DNS server **12**
-* Add `disable_tcp_keep_alive`, `tcp_keep_alive` and `tcp_keep_alive_interval` options for listen and dial fields **13**
-* Add `bind_address_no_port` option for dial fields **14**
-* Add system interface and relay server options for Tailscale endpoint **15**
-* Add Claude Code Multiplexer service **16**
-* Add OpenAI Codex Multiplexer service **17**
+* Add `disable_tcp_keep_alive`, `tcp_keep_alive` and `tcp_keep_alive_interval` options for dial fields **8**
+* Add `bind_address_no_port` option for dial fields **9**
+* Add system interface support for Tailscale endpoint **10**
+* Add Claude Code Multiplexer service **11**
+* Add OpenAI Codex Multiplexer service **12**
 * Apple/Android: Refactor GUI
 * Apple/Android: Add support for sharing configurations via [QRS](https://github.com/qifi-dev/qrs)
 * Android: Add support for resisting VPN detection via Xposed
-* Drop support for go1.23 **18**
-* Drop support for Android 5.0 **19**
-* Update uTLS to v1.8.2 **20**
+* Drop support for go1.23 **13**
+* Drop support for Android 5.0 **14**
+* Update uTLS to v1.8.2 **15**
 * Update quic-go to v0.59.0
 * Update gVisor to v20250811
 * Update Tailscale to v1.92.4
@@ -89,42 +84,11 @@ See [TLS](/configuration/shared/tls/).
 
 **8**:
 
-Adds `kernel_tx` and `kernel_rx` options for TLS inbound.
-Enables kernel-level TLS offloading via `splice(2)` on Linux 5.1+ with TLS 1.3.
-
-See [TLS](/configuration/shared/tls/).
-
-**9**:
-
-sing-box can now proxy ICMP echo (ping) requests.
-A new `icmp` network type is available for route rules.
-Supported from TUN, WireGuard and Tailscale inbounds to Direct, WireGuard and Tailscale outbounds.
-The `reject` action can also reply to ICMP echo requests.
-
-**10**:
-
-New rule items for matching based on interface IP addresses, available in route rules, DNS rules and rule-sets.
-
-**11**:
-
-Matches outbounds' preferred routes.
-For Tailscale: MagicDNS domains and peers' allowed IPs. For WireGuard: peers' allowed IPs.
-
-**12**:
-
-The `local` DNS server now uses platform-native resolution:
-`getaddrinfo`/libresolv on Apple platforms, systemd-resolved DBus on Linux.
-A new `prefer_go` option is available to opt out.
-
-See [Local DNS](/configuration/dns/server/local/).
-
-**13**:
-
 The default TCP keep-alive initial period has been updated from 10 minutes to 5 minutes.
 
 See [Dial Fields](/configuration/shared/dial/#tcp_keep_alive).
 
-**14**:
+**9**:
 
 Adds the Linux socket option `IP_BIND_ADDRESS_NO_PORT` support when explicitly binding to a source address.
 
@@ -132,28 +96,27 @@ This allows reusing the same source port for multiple connections, improving sca
 
 See [Dial Fields](/configuration/shared/dial/#bind_address_no_port).
 
-**15**:
+**10**:
 
 Tailscale endpoint can now create a system TUN interface to handle traffic directly.
-New `relay_server_port` and `relay_server_static_endpoints` options for incoming relay connections.
 
-See [Tailscale endpoint](/configuration/endpoint/tailscale/).
+See [Tailscale endpoint](/configuration/endpoint/tailscale/#system_interface).
 
-**16**:
+**11**:
 
 CCM (Claude Code Multiplexer) service allows you to access your local Claude Code subscription remotely through custom tokens, eliminating the need for OAuth authentication on remote clients.
 
 See [CCM](/configuration/service/ccm).
 
-**17**:
+**12**:
 
 See [OCM](/configuration/service/ocm).
 
-**18**:
+**13**:
 
 Due to maintenance difficulties, sing-box 1.13.0 requires at least Go 1.24 to compile.
 
-**19**:
+**14**:
 
 Due to maintenance difficulties, sing-box 1.13.0 will be the last version to support Android 5.0,
 and only through a separate legacy build (with `-legacy-android-5` suffix).
@@ -161,7 +124,7 @@ and only through a separate legacy build (with `-legacy-android-5` suffix).
 For standalone binaries, the minimum Android version has been raised to Android 6.0,
 since Termux requires Android 7.0 or later.
 
-**20**:
+**15**:
 
 This update fixes missing padding extension for Chrome 120+ fingerprints.
 
