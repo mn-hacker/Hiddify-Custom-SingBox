@@ -144,11 +144,7 @@ func (c *Client) Exchange(ctx context.Context, transport adapter.DNSTransport, m
 		if c.cache != nil {
 			cond, loaded := c.cacheLock.LoadOrStore(question, make(chan struct{}))
 			if loaded {
-				select {
-				case <-cond:
-				case <-ctx.Done():
-					return nil, ctx.Err()
-				}
+				<-cond
 			} else {
 				defer func() {
 					c.cacheLock.Delete(question)
@@ -158,11 +154,7 @@ func (c *Client) Exchange(ctx context.Context, transport adapter.DNSTransport, m
 		} else if c.transportCache != nil {
 			cond, loaded := c.transportCacheLock.LoadOrStore(question, make(chan struct{}))
 			if loaded {
-				select {
-				case <-cond:
-				case <-ctx.Done():
-					return nil, ctx.Err()
-				}
+				<-cond
 			} else {
 				defer func() {
 					c.transportCacheLock.Delete(question)
