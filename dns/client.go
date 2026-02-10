@@ -144,7 +144,13 @@ func (c *Client) Exchange(ctx context.Context, transport adapter.DNSTransport, m
 		if c.cache != nil {
 			cond, loaded := c.cacheLock.LoadOrStore(question, make(chan struct{}))
 			if loaded {
-				<-cond
+				select {
+				case <-cond:
+				case <-time.After(c.timeout):
+					return nil, E.New("cache wait timeout")
+				case <-ctx.Done():
+					return nil, ctx.Err()
+				}
 			} else {
 				defer func() {
 					c.cacheLock.Delete(question)
@@ -154,7 +160,13 @@ func (c *Client) Exchange(ctx context.Context, transport adapter.DNSTransport, m
 		} else if c.transportCache != nil {
 			cond, loaded := c.transportCacheLock.LoadOrStore(question, make(chan struct{}))
 			if loaded {
-				<-cond
+				select {
+				case <-cond:
+				case <-time.After(c.timeout):
+					return nil, E.New("cache wait timeout")
+				case <-ctx.Done():
+					return nil, ctx.Err()
+				}
 			} else {
 				defer func() {
 					c.transportCacheLock.Delete(question)
