@@ -1,6 +1,6 @@
 [submodule "replace/tailscale"]
 	path = replace/tailscale
-	url = git@github.com:hiddify/tailscale
+	url = https://github.com/mn-hacker/tailscale.git
 [submodule "replace/psiphon-quic-go"]
 	path = replace/psiphon-quic-go
 	url = git@github.com:hiddify/psiphon-quic-go
