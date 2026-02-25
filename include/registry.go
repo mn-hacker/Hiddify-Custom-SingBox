@@ -110,6 +110,7 @@ func OutboundRegistry() *outbound.Registry {
 
 	registerQUICOutbounds(registry)
 	registerWireGuardOutbound(registry)
+	registerAwgOutbound(registry)
 	registerStubForRemovedOutbounds(registry)
 
 	return registry
