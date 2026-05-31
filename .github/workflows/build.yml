@@ -57,7 +57,18 @@ jobs:
       - name: Calculate version
         if: github.event_name != 'workflow_dispatch'
         run: |-
-          go run -v ./cmd/internal/read_tag --ci --nightly
+          set -xeuo pipefail
+          # If HEAD is exactly on a tag, use the tag name directly (strip leading 'v').
+          # This avoids the read_tag parser dropping custom suffixes like ".h6".
+          EXACT_TAG="$(git tag --points-at HEAD | head -n1)"
+          if [ -n "$EXACT_TAG" ]; then
+            VER="${EXACT_TAG#v}"
+            echo "Using exact tag version: $VER"
+            echo "version=$VER" >> "$GITHUB_ENV"
+          else
+            echo "No exact tag on HEAD, falling back to read_tag --nightly"
+            go run -v ./cmd/internal/read_tag --ci --nightly
+          fi
       - name: Set outputs
         id: outputs
         run: |-
