@@ -420,19 +420,27 @@ jobs:
           merge-multiple: true
       - name: List artifacts
         run: ls -laR dist
-      - name: Publish tar.gz/zip to release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: v${{ needs.calculate_version.outputs.version }}
-          name: v${{ needs.calculate_version.outputs.version }}
-          draft: false
-          prerelease: false
-          make_latest: true
-          files: |
-            dist/*.tar.gz
-          fail_on_unmatched_files: true
+      - name: Publish release with gh CLI
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.calculate_version.outputs.version }}
+        run: |
+          set -xeuo pipefail
+          TAG="v${VERSION}"
+          # Collect tar.gz files
+          FILES=$(find dist -name '*.tar.gz')
+          if [ -z "$FILES" ]; then
+            echo "No tar.gz files found!"; exit 1
+          fi
+          # Create the release if it doesn't exist (published, not draft), else just upload
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release $TAG exists, uploading assets (clobber) and ensuring it is published..."
+            gh release upload "$TAG" $FILES --repo "$GITHUB_REPOSITORY" --clobber
+            gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --draft=false --latest
+          else
+            echo "Creating release $TAG..."
+            gh release create "$TAG" $FILES --repo "$GITHUB_REPOSITORY" --title "$TAG" --notes "Automated build: mieru inbound + awg endpoint support" --latest
+          fi
   # build_darwin:
   #   name: Build Darwin binaries
   #   if: github.event_name != 'workflow_dispatch' || inputs.build == 'All' || inputs.build == 'Binary'
