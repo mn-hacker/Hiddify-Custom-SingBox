@@ -88,11 +88,11 @@ func (d *Device) Start(stage adapter.StartStage) error {
 
 func (d *Device) Close() error {
 	if d.awgDevice != nil {
+		// awgDevice.Close() also closes the underlying tun (see amneziawg-go
+		// device.Close -> device.tun.device.Close). Calling d.tun.Close()
+		// again would double-close the gVisor netstack and panic.
 		d.awgDevice.Close()
 		d.awgDevice = nil
-	}
-	if d.tun != nil {
-		_ = d.tun.Close()
 	}
 	return nil
 }
